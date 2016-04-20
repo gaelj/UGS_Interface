@@ -1,0 +1,357 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6C09CF07-634C-46B5-AB1C-8F4A0C0FD942}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UGS</RootNamespace>
+    <AssemblyName>UGS</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <Utf8Output>true</Utf8Output>
+    <ExpressionBlendVersion>4.0.20525.0</ExpressionBlendVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>20517.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>UGS.App</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Expression.Interactions" />
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-ShellExtensions.1.1.1\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationFramework.Aero2" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="system.windows.controls.layout.toolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Interactivity" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WPFToolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="WriteableBitmapEx.Wpf">
+      <HintPath>..\..\WriteableBitmapEx_v1.5.0.0\WPF\WriteableBitmapEx.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.Toolkit">
+      <HintPath>..\packages\Extended.Wpf.Toolkit.2.5\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Converters\CommandToShapeConverter.cs" />
+    <Compile Include="Converters\VuMultiplierConverter.cs" />
+    <Compile Include="Converters\VuOffsetConverter.cs" />
+    <Compile Include="Helpers\IconFromBitmap.cs" />
+    <Compile Include="Models\InputParameterSet.cs" />
+    <Compile Include="Models\LedAnimationParameterSet.cs" />
+    <Compile Include="Views\IconEditor.xaml.cs">
+      <DependentUpon>IconEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UgsMainWindow.xaml.cs">
+      <DependentUpon>UgsMainWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Resources\IconsResourceDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\ImplicitStylesResourceDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\StylesResourceDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\IconEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Converters\IsBiggerThanConverter.cs" />
+    <Compile Include="Converters\MyConverters.cs" />
+    <Compile Include="Helpers\DelegateCommand.cs" />
+    <Compile Include="Helpers\NotificationObject.cs" />
+    <Compile Include="Helpers\RandomHelper.cs" />
+    <Compile Include="Models\Icon.cs" />
+    <Compile Include="Models\Preset.cs" />
+    <Compile Include="Models\UGS.cs" />
+    <Compile Include="ViewModels\BaseViewModel.cs" />
+    <Compile Include="ViewModels\UGSViewModel.cs" />
+    <Page Include="Views\UgsMainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\DataSources\UGS.ViewModels.UGSViewModel.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\20517.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_alarm_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_album_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_autorenew_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_blur_on_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_build_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_cancel_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_computer_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_desktop_windows_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_done_48pt_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_done_all_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_done_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_equalizer_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_exit_to_app_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_expand_less_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_expand_more_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_favorite_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_favorite_border_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_filter_1_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_filter_2_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_filter_6_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_filter_7_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_filter_8_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_filter_9_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_home_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_hourglass_empty_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_input_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_looks_3_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_looks_4_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_looks_5_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_looks_6_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_looks_one_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_looks_two_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_more_horiz_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_more_vert_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_palette_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_phone_iphone_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_play_circle_filled_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_play_circle_outline_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_play_for_work_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_power_input_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_power_settings_new_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_present_to_all_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_redo_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_refresh_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_save_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_settings_backup_restore_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_settings_input_component_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_settings_input_svideo_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_snooze_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_speaker_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_system_update_alt_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_tune_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_tv_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_usb_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_volume_off_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_volume_up_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_watch_black_48dp_2x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="20517.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ic_volume_down_black_48dp_2x.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

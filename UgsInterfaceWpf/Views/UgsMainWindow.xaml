@@ -1,0 +1,698 @@
+﻿<Window xmlns:Controls="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Layout.Toolkit" 
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:viewModels="clr-namespace:UGS.ViewModels"
+    xmlns:converters="clr-namespace:UGS.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        
+	x:Class="UGS.UgsMainWindow"    
+	Title="Universal Gain Stage"
+    WindowStartupLocation="CenterScreen"
+    StateChanged="Window_StateChanged"
+	SizeToContent="WidthAndHeight" 
+    Width="1440" Height="720"
+    Style="{DynamicResource GradiantBackground}" 
+    Icon="/UGS;component/Images/ic_volume_up_black_48dp_2x.png" 
+    DataContext="{StaticResource UGSViewModel}"
+ >
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:RGB565ToColorConverter x:Key="RGB565ToColorConverter" />
+        <converters:AnimationNameToIdConverter x:Key="AnimationNameToIdConverter" />
+        <converters:AnimationDelayToMs x:Key="AnimationDelayToMs" />
+        <converters:VuOffsetConverter x:Key="VuOffsetConverter" />
+        <converters:VuMultiplierConverter x:Key="VuMultiplierConverter" />
+    </Window.Resources>
+
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding CustomizeTaskBarCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <DockPanel x:Name="LayoutRoot" MinWidth="320" MinHeight="400">
+
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <Label Content="UGS" Style="{StaticResource UgsReadyStyle}"    Margin="5"       
+                   Foreground="{Binding ugs.CurrentPreset.InactiveColor, Converter={StaticResource RGB565ToBrushConverter}}" />
+            <Border BorderThickness="2" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Margin="0,5,0,5">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Label Content="Ready" Margin="3" VerticalAlignment="Center" />
+                        <CheckBox HorizontalAlignment="Center" Margin="3" VerticalAlignment="Center" IsChecked="{Binding ugs.UgsIsReadForNewCommands, Mode=OneWay}" IsEnabled="False" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Label Content="Loop time (ms)" Margin="16,3,3,3" VerticalAlignment="Center" />
+                        <Label Content="{Binding Path=ugs.LoopTime}" Margin="-6,3,3,3" Width="50" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border BorderThickness="2" BorderBrush="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" Margin="5">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                    <Label Content="Serial port" Margin="3" HorizontalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox VerticalAlignment="Center" Width="80" Height="23" HorizontalAlignment="Left" Margin="5" x:Name="serialPortsComboBox" 
+                  SelectedValue="{Binding ugs.SerialPortName, Mode=TwoWay}"
+                  ItemsSource="{Binding Path=SerialPorts}" >
+                            <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ComboBox.ItemsPanel>
+                        </ComboBox>
+                        <CheckBox Content="Open" Height="16" HorizontalAlignment="Center" Margin="10" x:Name="isPortOpenCheckBox" VerticalAlignment="Center" 
+                          IsChecked="{Binding ugs.IsPortOpen, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <TabControl DockPanel.Dock="Bottom" Margin="10">
+            <TabItem Header="UGS control">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <StackPanel Orientation="Vertical" Margin="5,5,5,0" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label Content="Stand-by" HorizontalAlignment="Center" />
+                            <ToggleButton IsChecked="{Binding Path=ugs.Standby, Mode=TwoWay}" Style="{StaticResource ToggleButtonStyle}" Content="{Binding Path=ugs.CurrentPreset.StandbyIcon}"  />
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="5,5,5,0" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Label Content="Mute" HorizontalAlignment="Center" />
+                            <ToggleButton IsChecked="{Binding Path=ugs.Mute, Mode=TwoWay}" Style="{StaticResource ToggleButtonStyle}" Content="{Binding Path=ugs.CurrentPreset.MuteIcon}"   />
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="5" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Top">
+                            <Label Content="Volume" Margin="5,0,5,0" HorizontalAlignment="Center" />
+                            <ProgressBar Name="VolumeBar"  
+                                Margin="5,16,5,0"
+                                Width="200"        
+                                HorizontalAlignment="Center"
+                                Value="{Binding Path=ugs.Volume, Mode=TwoWay}"
+                                Style="{DynamicResource VolumeStyle}" 
+                                Minimum="{Binding Path=ugs.CurrentPreset.MinVolume}"
+                                Maximum="{Binding Path=ugs.CurrentPreset.MaxVolume}"
+                                MouseMove="volumeSlider_MouseMove" 
+                                MouseDown="volumeSlider_MouseDown"
+                                MouseUp="volumeSlider_MouseUp" 
+                                MouseWheel="volumeSlider_MouseWheel" 
+                            />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Margin = "5,0,5,5" Orientation="Vertical" Visibility="{Binding Path=ugs.CurrentPreset.UseAtLeastOneInput, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                        <Label Content="Inputs" HorizontalAlignment="Center" />
+
+                        <ItemsControl ItemsSource="{Binding Path=ugs.CurrentPreset.Inputs, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <RadioButton  
+                                            Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                            IsChecked="{Binding Path=InputIsActive, Mode=TwoWay}" 
+                                            Style="{StaticResource RadioButtonStyle}" 
+                                            Content="{Binding Path=InputIcon }"  />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="5" >
+                            <StackPanel Orientation="Vertical" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Label Content="Bypass" HorizontalAlignment="Center" />
+                                <ToggleButton IsChecked="{Binding Path=ugs.Bypass, Mode=TwoWay}" Style="{StaticResource ToggleButtonStyle}" Content="{Binding Path=ugs.CurrentPreset.BypassIcon}"  />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Label Content="Asymetrical Output" HorizontalAlignment="Center" />
+                                <ToggleButton IsChecked="{Binding Path=ugs.OutAssym, Mode=TwoWay}" Style="{StaticResource ToggleButtonStyle}" Content="{Binding Path=ugs.CurrentPreset.SymmoutIcon}"  />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" SnapsToDevicePixels="True" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Label Content="Aux Output" HorizontalAlignment="Center" />
+                                <ToggleButton IsChecked="{Binding Path=ugs.ExtOut, Mode=TwoWay}" Style="{StaticResource ToggleButtonStyle}" Content="{Binding Path=ugs.CurrentPreset.SpeakerIcon}"  />
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding Path=ugs.DacStatus, Mode=OneWay}" Margin="3" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+            </TabItem>
+
+            <TabItem Header="Settings">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Orientation="Horizontal">
+                        <Label  Content="Preset" Margin="3" VerticalAlignment="Center" FontSize="18" />
+                        <Label  Margin="3" Name="numberTextBox" Content="{Binding Path=ugs.CurrentPreset.Number, Mode=TwoWay}" VerticalAlignment="Center" Width="20" FontSize="18" />
+                        <Button   Style="{StaticResource ButtonStyle}" Content="Previous Preset" x:Name="PreviousPreset" ToolTip="Previous Preset" Command="{Binding PreviousPresetCommand}">
+                            <Button.Background>
+                                <ImageBrush ImageSource="/UGS;component/Images/ic_expand_less_black_48dp_2x.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button  Style="{StaticResource ButtonStyle}" Content="Next Preset" x:Name="NextPreset" ToolTip="Next Preset" Command="{Binding NextPresetCommand}">
+                            <Button.Background>
+                                <ImageBrush ImageSource="/UGS;component/Images/ic_expand_more_black_48dp_2x.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button Style="{StaticResource ButtonStyle}" Content="Reset Arduino" x:Name="ResetArduino" ToolTip="Reboot Arduino" Command="{Binding ResetArduinoCommand}" >
+                            <Button.Background>
+                                <ImageBrush ImageSource="/UGS;component/Images/ic_autorenew_black_48dp_2x.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button Style="{StaticResource ButtonStyle}" Content="Reset Factory (Current)" x:Name="ResetFactoryCurrent"  ToolTip="Reset Factory Settings (Current Preset Group)" Command="{Binding ResetFactoryCurrentCommand}" >
+                            <Button.Background>
+                                <ImageBrush ImageSource="/UGS;component/Images/ic_home_black_48dp_2x.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button Style="{StaticResource ButtonStyle}" Content="Reset Icons" x:Name="ResetIcons" ToolTip="Reset Icons" Command="{Binding ResetIconsCommand}" >
+                            <Button.Background>
+                                <ImageBrush ImageSource="/UGS;component/Images/ic_settings_backup_restore_black_48dp_2x.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button Style="{StaticResource ButtonStyle}" Content="Load icons from UGS" x:Name="GetIcons" ToolTip="Get Icons" Command="{Binding GetIconsCommand}">
+                            <Button.Background>
+                                <ImageBrush ImageSource="/UGS;component/Images/ic_blur_on_black_48dp_2x.png" />
+                            </Button.Background>
+                        </Button>
+                        <Button Style="{StaticResource ButtonStyle}" Content="Edit Icons" x:Name="EditIcons" ToolTip="Edit Icons" Command="{Binding EditIconsCommand}">
+                            <Button.Background>
+                                <ImageBrush ImageSource="/UGS;component/Images/ic_palette_black_48dp_2x.png" />
+                            </Button.Background>
+                        </Button>
+                    </StackPanel>
+
+                    <TabControl>
+                        <TabItem Header="Volume / offset / balance">
+                            <StackPanel Orientation="Vertical">
+                                <WrapPanel>
+                                    <Label Content="Balance LR" Width="120" Margin="3" />
+                                    <Slider 
+                                            Value="{Binding Path=ugs.CurrentPreset.BalanceLR}"
+                                            Minimum="-110" Maximum="110"                         
+                                            MouseMove="Slider_MouseMove" MouseDown="Slider_MouseDown" MouseUp="Slider_MouseUp" MouseWheel="Slider_MouseWheel"
+                                            Style="{DynamicResource BalanceStyle}" 
+                                            Template="{DynamicResource SliderControlTemplate1}" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Offset 1" Width="120" Margin="3" />
+                                    <Slider    
+                                            Value="{Binding Path=ugs.CurrentPreset.Offset1}"
+                                            Style="{DynamicResource BalanceStyle}" 
+                                            Minimum="-110" 
+                                            Maximum="110"                         
+                                            MouseMove="Slider_MouseMove" MouseDown="Slider_MouseDown" MouseUp="Slider_MouseUp" MouseWheel="Slider_MouseWheel" 
+                                            Template="{DynamicResource SliderControlTemplate1}" 
+                                            />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Offset 2" Width="120" Margin="3" />
+                                    <Slider                
+                                            Value="{Binding Path=ugs.CurrentPreset.Offset2}"
+                                            Style="{DynamicResource BalanceStyle}" 
+                                            Minimum="-110" 
+                                            Maximum="110"                         
+                                            MouseMove="Slider_MouseMove" MouseDown="Slider_MouseDown" MouseUp="Slider_MouseUp" MouseWheel="Slider_MouseWheel" 
+                                            Template="{DynamicResource SliderControlTemplate1}" 
+                                        />
+
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Offset 3" Width="120" Margin="3" />
+                                    <Slider                       
+                                            Value="{Binding Path=ugs.CurrentPreset.Offset3}"
+                                            Style="{DynamicResource BalanceStyle}" 
+                                            Minimum="-110" 
+                                            Maximum="110"                          
+                                            MouseMove="Slider_MouseMove" MouseDown="Slider_MouseDown" MouseUp="Slider_MouseUp" MouseWheel="Slider_MouseWheel"   
+                                            Template="{DynamicResource SliderControlTemplate1}" 
+                                        />
+
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Vol Increment" Width="120" Margin="3" />
+                                    <ProgressBar   
+                                            Value="{Binding Path=ugs.CurrentPreset.VolIncrement}"
+                                            Minimum="1"
+                                            Maximum="8" 
+                                            Style="{DynamicResource BalanceStylePb}" 
+                                            MouseMove="volumeSlider_MouseMove" 
+                                            MouseDown="volumeSlider_MouseDown"
+                                            MouseUp="volumeSlider_MouseUp" 
+                                            MouseWheel="volumeSlider_MouseWheel"
+                                            />
+                                </WrapPanel>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="Source &amp; power change">
+                            <StackPanel>
+                                <WrapPanel  Visibility="{Binding Path=ugs.CurrentPreset.UseAtLeastOneInput, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Label Content="Use Last Input" Width="180" Margin="3" VerticalAlignment="Center" />
+                                    <Border Width="80">
+                                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding Path=ugs.CurrentPreset.UseDefOrLastInput, Mode=TwoWay}" Margin="3" Name="useDefOrLastInputCheckBox"  />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Use Last Volume" Width="180" HorizontalAlignment="Center" Margin="3" VerticalAlignment="Center" />
+                                    <Border Width="80">
+                                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding Path=ugs.CurrentPreset.UseDefOrLastVolume, Mode=TwoWay}" Margin="3" Name="useDefOrLastVolumeCheckBox" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Power-toggle min delay (sec)" Width="180" Margin="3" />
+                                    <Border Width="80">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Value="{Binding Path=ugs.CurrentPreset.PowerToggleDelay, Mode=TwoWay}" Width="50" Minimum="0" Maximum="7" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Power-On Mute duration (sec)" Width="180" Margin="3" />
+                                    <Border Width="80">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Value="{Binding Path=ugs.CurrentPreset.PowerOnMuteDelay, Mode=TwoWay}" Width="50" Minimum="0" Maximum="7" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel Visibility="{Binding Path=ugs.CurrentPreset.UseAtLeastOneInput, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                    <Label Content="Common Volume" Width="180" Margin="3"  />
+                                    <Border Width="80" >
+                                        <CheckBox Height="16" HorizontalAlignment="Center" IsChecked="{Binding Path=ugs.CurrentPreset.CommonVolume, Mode=TwoWay}" Margin="3" Name="commonVolumeCheckBox" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel Visibility="{Binding Path=ugs.CurrentPreset.UseAtLeastOneInput, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                    <Label Content="Default Input" Width="180" Margin="3" />
+                                    <Border Width="80">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Name="defaultInputTextBox"   Value="{Binding Path=ugs.CurrentPreset.DefaultInput, Mode=TwoWay}" Width="50" Minimum="0" Maximum="5" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="Timeouts">
+                            <StackPanel>
+                                <WrapPanel>
+                                    <Label Content="Tft Sleep Timeout (s)" Margin="3" Width="120" />
+                                    <Border Width="120">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Name="tftSleepTimeoutTextBox"  Value="{Binding Path=ugs.CurrentPreset.TftSleepTimeout, Mode=TwoWay}"   Width="60" Minimum="0" Maximum="255" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Tft Sweep delay (ms)"  Margin="3" Width="120" />
+                                    <Border Width="120">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Name="tftSweepSpeedTextBox"  Value="{Binding Path=ugs.CurrentPreset.TftSweepSpeed, Mode=TwoWay}"       Width="60" Minimum="0" Maximum="255" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Vol Sweep del (ms)"    Margin="3" Width="120" />
+                                    <Border Width="120">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Name="volumeSweepSpeedTextBox"  Value="{Binding Path=ugs.CurrentPreset.VolumeSweepSpeed, Mode=TwoWay}" Width="60" Minimum="0" Maximum="255" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Touch Timeout (ms)"    Margin="3" Width="120" />
+                                    <Border Width="120">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Name="touchTimeoutTextBox"  Value="{Binding Path=ugs.CurrentPreset.TouchTimeout, Mode=TwoWay}"         Width="60" Minimum="0" Maximum="255" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Hold Timeout (ms)"     Margin="3" Width="120" />
+                                    <Border Width="120">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Name="holdTimeoutTextBox"  Value="{Binding Path=ugs.CurrentPreset.HoldTimeout, Mode=TwoWay}"           Width="60" Minimum="0" Maximum="255" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="Inputs">
+                            <StackPanel Orientation="Horizontal">
+
+                                <StackPanel Orientation="Vertical">
+                                    <Label Content="Use input" Width="120" Margin="3" />
+                                    <Label Content="Current Volume" Width="120" Margin="3" />
+                                    <Label Content="Default Volume" Width="120" Margin="3" />
+                                    <Label Content="Min Volume" Width="120" Margin="3" />
+                                    <Label Content="Max Volume" Width="120" Margin="3" />
+                                    <Label Content="Icon" Width="120" Height="60" Margin="3" VerticalContentAlignment="Center" />
+                                    <Label Content="Source number" Width="120" Margin="3" VerticalAlignment="Center" />
+                                    <Label Content="DAC Source / PSU 2" Width="120" Margin="3" VerticalAlignment="Center" />
+                                    <Label Content="Trigger 1 / Trigger 2" Width="120" Margin="3" VerticalAlignment="Center"  />
+                                    <Label Content="VU Meters Offset" Width="120" Margin="3" VerticalAlignment="Center"  />
+                                    <Label Content="VU Meters Multiplier" Width="120" Margin="3" VerticalAlignment="Center"  />
+                                </StackPanel>
+
+
+                                <ItemsControl ItemsSource="{Binding Path=ugs.CurrentPreset.Inputs, Mode=OneWay, UpdateSourceTrigger=PropertyChanged }" >
+
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+
+                                            <StackPanel Orientation="Vertical">
+
+                                                <WrapPanel Width="120" >
+                                                    <CheckBox Height="26" IsChecked="{Binding Path=UseInput, Mode=TwoWay}" Margin="3" VerticalContentAlignment="Center" />
+                                                    <Label Content="Input" Margin="3" VerticalAlignment="Center" />
+                                                    <Label Content="{Binding Path=InputNumber}" Margin="0,3" VerticalAlignment="Center" />
+                                                </WrapPanel>
+
+                                                <ProgressBar
+                                                        Value="{Binding Path=VolumeIn}"
+                                                        Style="{DynamicResource VolumeStyle}" 
+                                                        Height="26"
+                                                        Margin="3"
+                                                        Minimum="0" 
+                                                        Maximum="{Binding ugs.CurrentPreset.VolumeSteps, Mode=OneWay, Source={StaticResource UGSViewModel}}" 
+                                                        MouseMove="volumeSlider_MouseMove" 
+                                                        MouseDown="volumeSlider_MouseDown"
+                                                        MouseUp="volumeSlider_MouseUp" 
+                                                        MouseWheel="volumeSlider_MouseWheel"
+                                                        Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                                    />
+
+                                                <ProgressBar
+                                                        Value="{Binding Path=DefaultVolumeIn}"
+                                                        Style="{DynamicResource VolumeStyle}" 
+                                                        Height="26"
+                                                        Margin="3"
+                                                        Maximum="{Binding Path=ugs.CurrentPreset.VolumeSteps, Mode=OneWay, Source={StaticResource UGSViewModel}}" 
+                                                        MouseMove="volumeSlider_MouseMove" 
+                                                        MouseDown="volumeSlider_MouseDown"
+                                                        MouseUp="volumeSlider_MouseUp" 
+                                                        MouseWheel="volumeSlider_MouseWheel"
+                                                        Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                                    />
+
+                                                <ProgressBar                 
+                                                        Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                                        Value="{Binding Path=MinVolume}"
+                                                        Style="{DynamicResource VolumeStyle}" 
+                                                        Height="26"
+                                                        Margin="3"
+                                                        Maximum="{Binding Path=ugs.CurrentPreset.VolumeSteps, Mode=OneWay, Source={StaticResource UGSViewModel}}" 
+                                                        MouseMove="volumeSlider_MouseMove" 
+                                                        MouseDown="volumeSlider_MouseDown"
+                                                        MouseUp="volumeSlider_MouseUp" 
+                                                        MouseWheel="volumeSlider_MouseWheel"
+                                                    />
+
+                                                <ProgressBar                 
+                                                        Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                                        Value="{Binding Path=MaxVolume}"
+                                                        Style="{DynamicResource VolumeStyle}"
+                                                        Height="26" 
+                                                        Margin="3"
+                                                        Maximum="{Binding Path=ugs.CurrentPreset.VolumeSteps, Mode=OneWay, Source={StaticResource UGSViewModel}}" 
+                                                        MouseMove="volumeSlider_MouseMove" 
+                                                        MouseDown="volumeSlider_MouseDown"
+                                                        MouseUp="volumeSlider_MouseUp" 
+                                                        MouseWheel="volumeSlider_MouseWheel"
+                                                    />
+
+                                                <WrapPanel Width="120" HorizontalAlignment="Center" Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                                    <ToggleButton Content="{Binding Path=InputIcon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputIconSelectionToggleButtonStyle}" Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                </WrapPanel>
+
+                                                <WrapPanel Width="120" HorizontalAlignment="Center" Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" >
+                                                    <xctk:IntegerUpDown Height="26" HorizontalAlignment="Center" Margin="3" Value="{Binding Path=InputSource, Mode=TwoWay}" VerticalAlignment="Center" Width="50" Maximum="5" Minimum="0"  Visibility="{Binding Path=UseInput, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                </WrapPanel>
+
+                                                <WrapPanel Width="120" HorizontalAlignment="Center"   Visibility="{Binding Converter={StaticResource BooleanToVisibilityConverter}, Path=UseInput}" >
+                                                    <CheckBox Height="26" HorizontalAlignment="Center" IsChecked="{Binding Path=InputTrigger, Mode=TwoWay}" Margin="3" VerticalContentAlignment="Center"  />
+                                                    <CheckBox Height="26" HorizontalAlignment="Center" IsChecked="{Binding Path=Psu2Trigger, Mode=TwoWay}" Margin="3" VerticalContentAlignment="Center" />
+                                                </WrapPanel>
+
+                                                <WrapPanel Width="120" HorizontalAlignment="Center"  Visibility="{Binding Converter={StaticResource BooleanToVisibilityConverter}, Path=UseInput}" >
+                                                    <CheckBox Height="26" HorizontalAlignment="Center" IsChecked="{Binding Path=Ext1Trigger, Mode=TwoWay}" Margin="3" VerticalContentAlignment="Center" />
+                                                    <CheckBox Height="26" HorizontalAlignment="Center" IsChecked="{Binding Path=Ext2Trigger, Mode=TwoWay}" Margin="3" VerticalContentAlignment="Center" />
+                                                </WrapPanel>
+
+                                                <Border Width="120">
+                                                    <xctk:IntegerUpDown Height="26" HorizontalAlignment="Center" Margin="3" Value="{Binding Path=VuOffset, Mode=TwoWay, Converter={StaticResource VuOffsetConverter}}" Width="60" Minimum="400" Maximum="655" />
+                                                </Border>
+
+                                                <Border Width="120">
+                                                    <xctk:IntegerUpDown Height="26" HorizontalAlignment="Center" Margin="3" Value="{Binding Path=VuMultiplier, Mode=TwoWay, Converter={StaticResource VuMultiplierConverter}}" Width="60" Minimum="0" Maximum="6375" />
+                                                </Border>
+
+                                            </StackPanel>
+
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </TabItem>
+
+
+
+
+                        <TabItem Header="Illumination">
+                            <StackPanel>
+                                <WrapPanel>
+                                    <Label Content="TFT" Width="120" Margin="3" />
+                                    <xctk:RangeSlider  Height="23" Margin="3" Name="illum_TFT_RangeSlider"    LowerValue="{Binding Path=ugs.CurrentPreset.Illum_TFT_L, Mode=TwoWay}"  HigherValue="{Binding Path=ugs.CurrentPreset.Illum_TFT_H, Mode=TwoWay}" Width="120" Minimum="0" Maximum="255" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Rear LEDs Left" Width="120" Margin="3" />
+                                    <xctk:RangeSlider  Height="23" Margin="3" Name="illum_Rear_RangeSliderL"   LowerValue="{Binding Path=ugs.CurrentPreset.IllumRly1_L, Mode=TwoWay}"  HigherValue="{Binding Path=ugs.CurrentPreset.IllumRly1_H, Mode=TwoWay}" Width="120" Minimum="0" Maximum="255" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Rear LEDs Right" Width="120" Margin="3" />
+                                    <xctk:RangeSlider  Height="23" Margin="3" Name="illum_Rear_RangeSliderR"   LowerValue="{Binding Path=ugs.CurrentPreset.IllumRly2_L, Mode=TwoWay}"  HigherValue="{Binding Path=ugs.CurrentPreset.IllumRly2_H, Mode=TwoWay}" Width="120" Minimum="0" Maximum="255" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Volume LEDs Left" Width="120" Margin="3" />
+                                    <xctk:RangeSlider  Height="23" Margin="3" Name="illum_Vol1_RangeSlider"   LowerValue="{Binding Path=ugs.CurrentPreset.IllumVol1_L, Mode=TwoWay}"  HigherValue="{Binding Path=ugs.CurrentPreset.IllumVol1_H, Mode=TwoWay}" Width="120" Minimum="0" Maximum="255" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Volume LEDs Right" Width="120" Margin="3" />
+                                    <xctk:RangeSlider  Height="23" Margin="3" Name="illum_Vol2_RangeSlider"   LowerValue="{Binding Path=ugs.CurrentPreset.IllumVol2_L, Mode=TwoWay}"  HigherValue="{Binding Path=ugs.CurrentPreset.IllumVol2_H, Mode=TwoWay}" Width="120" Minimum="0" Maximum="255" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="Colors">
+                            <StackPanel>
+                                <WrapPanel>
+                                    <Label Content="Back"     Margin="3" Width="120" />
+                                    <xctk:ColorPicker Margin="3" SelectedColor="{Binding Path=ugs.CurrentPreset.BackColor, Converter={StaticResource RGB565ToColorConverter }, Mode=TwoWay}"          Width="120" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Back2"    Margin="3" Width="120" />
+                                    <xctk:ColorPicker Margin="3" SelectedColor="{Binding Path=ugs.CurrentPreset.BackColor2,Converter={StaticResource RGB565ToColorConverter }, Mode=TwoWay}"          Width="120" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Front"    Margin="3" Width="120" />
+                                    <xctk:ColorPicker Margin="3" SelectedColor="{Binding Path=ugs.CurrentPreset.FrontColor, Converter={StaticResource RGB565ToColorConverter }, Mode=TwoWay}"         Width="120" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Inactive" Margin="3" Width="120" />
+                                    <xctk:ColorPicker Margin="3" SelectedColor="{Binding Path=ugs.CurrentPreset.InactiveColor, Converter={StaticResource RGB565ToColorConverter }, Mode=TwoWay}"      Width="120" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Selected" Margin="3" Width="120" />
+                                    <xctk:ColorPicker Margin="3" SelectedColor="{Binding Path=ugs.CurrentPreset.SelectedFrontColor, Converter={StaticResource RGB565ToColorConverter }, Mode=TwoWay}" Width="120" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Touch"    Margin="3" Width="120" />
+                                    <xctk:ColorPicker Margin="3" SelectedColor="{Binding Path=ugs.CurrentPreset.TouchFrontColor, Converter={StaticResource RGB565ToColorConverter }, Mode=TwoWay}"    Width="120" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="Rotary / Push configuration">
+                            <StackPanel>
+                                <WrapPanel>
+                                    <Label Content="Rotary action id"     Margin="3" Width="120" />
+                                    <Border Width="120">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Value="{Binding Path=ugs.CurrentPreset.ActionIdRotary, Mode=TwoWay}" Width="60" Minimum="0" Maximum="255" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Label Content="Push action id"     Margin="3" Width="120" />
+                                    <Border Width="120">
+                                        <xctk:IntegerUpDown Height="23" HorizontalAlignment="Center" Margin="3" Value="{Binding Path=ugs.CurrentPreset.ActionIdPush, Mode=TwoWay}" Width="60" Minimum="0" Maximum="255" DataContext="{Binding}" />
+                                    </Border>
+                                </WrapPanel>
+                            </StackPanel>
+                        </TabItem>
+
+                        <TabItem Header="LED animations">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content=""                 Margin="3" Width="120" />
+                                    <Label Content="Volume" Margin="3" Width="392" HorizontalContentAlignment="Center" />
+                                    <Label Content="Rear"   Margin="3" Width="392" HorizontalContentAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content=""                 Margin="3" Width="120" />
+                                    <Label Content="Animation"  Margin="3" Width="240" HorizontalContentAlignment="Center" />
+                                    <Label Content="Delay (ms)" Margin="3" Width="70" HorizontalContentAlignment="Center" />
+                                    <Label Content="Count"      Margin="3" Width="70" HorizontalContentAlignment="Center" />
+                                    <Label Content="Animation"  Margin="3" Width="240" HorizontalContentAlignment="Center" />
+                                    <Label Content="Delay (ms)" Margin="3" Width="70" HorizontalContentAlignment="Center" />
+                                    <Label Content="Count"      Margin="3" Width="70" HorizontalContentAlignment="Center" />
+                                </StackPanel>
+
+                                <ItemsControl Name="AnimationParametersItemsControl" ItemsSource="{Binding Path=ugs.CurrentPreset.LedAnimations}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="{Binding Path=AnimationsName}"     Margin="3" Width="120" />
+                                                <ComboBox Width="240" Height="23" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=AnimationsVolume}" SelectedValue="{Binding Path=AnimationsVolumeValue, Mode=TwoWay, Converter={StaticResource AnimationNameToIdConverter}}" >
+                                                    <ComboBox.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <VirtualizingStackPanel />
+                                                        </ItemsPanelTemplate>
+                                                    </ComboBox.ItemsPanel>
+                                                </ComboBox>
+                                                <xctk:IntegerUpDown Height="23" Margin="3" Value="{Binding Path=AnimationStateDelay_vValue, Converter={StaticResource AnimationDelayToMs}, Mode=TwoWay}" Width="70" Minimum="0" Maximum="6375" />
+                                                <xctk:IntegerUpDown Height="23" Margin="3" Value="{Binding Path=AnimationStateRepeat_vValue, Mode=TwoWay}" Width="70" Minimum="0" Maximum="255" />
+                                                <ComboBox Width="240" Height="23" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=AnimationsRear}" SelectedValue="{Binding Path=AnimationsRearValue, Mode=TwoWay, Converter={StaticResource AnimationNameToIdConverter}}" >
+                                                    <ComboBox.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <VirtualizingStackPanel />
+                                                        </ItemsPanelTemplate>
+                                                    </ComboBox.ItemsPanel>
+                                                </ComboBox>
+                                                <xctk:IntegerUpDown Height="23" Margin="3" Value="{Binding Path=AnimationStateDelay_rValue, Converter={StaticResource AnimationDelayToMs}, Mode=TwoWay}" Width="70" Minimum="0" Maximum="6375" />
+                                                <xctk:IntegerUpDown Height="23" Margin="3" Value="{Binding Path=AnimationStateRepeat_rValue, Mode=TwoWay}" Width="70" Minimum="0" Maximum="255" />
+                                            </StackPanel>
+
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </TabItem>
+
+                    </TabControl>
+
+                </DockPanel>
+            </TabItem>
+
+            <TabItem Header="Test">
+                <WrapPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="UGS with"/>
+                        <Label Content="{Binding ugs.NbRlyBoards}" Margin="-6,0,0,0"/>
+                        <Label Content="relay boards &amp;" Margin="-6,0,0,0"/>
+                        <Label Content="{Binding ugs.NbVolBoards}" Margin="-6,0,0,0"/>
+                        <Label Content="volume boards" Margin="-6,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label Content="Display lighting" Margin="3" VerticalAlignment="Center" Width="140" />
+
+                        <ProgressBar   
+                            Height="23" 
+                            Value="{Binding ugs.IllumTft}"
+                            Style="{DynamicResource VolumeStyle}" 
+                            Maximum="255" 
+                            MouseMove="volumeSlider_MouseMove" 
+                            MouseDown="volumeSlider_MouseDown"
+                            MouseUp="volumeSlider_MouseUp" 
+                            MouseWheel="volumeSlider_MouseWheel"
+                        />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label Content="Volume left lighting" Margin="3" VerticalAlignment="Center" Width="140" />
+
+                        <ProgressBar   
+                            Height="23" 
+                            Value="{Binding ugs.IllumVol1}"
+                            Style="{DynamicResource VolumeStyle}" 
+                            Maximum="255" 
+                            MouseMove="volumeSlider_MouseMove" 
+                            MouseDown="volumeSlider_MouseDown"
+                            MouseUp="volumeSlider_MouseUp" 
+                            MouseWheel="volumeSlider_MouseWheel"
+                        />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label Content="Volume right lighting" Margin="3" VerticalAlignment="Center" Width="140" />
+
+                        <ProgressBar   
+                            Height="23" 
+                            Value="{Binding ugs.IllumVol2}"
+                            Style="{DynamicResource VolumeStyle}" 
+                            Maximum="255" 
+                            MouseMove="volumeSlider_MouseMove" 
+                            MouseDown="volumeSlider_MouseDown"
+                            MouseUp="volumeSlider_MouseUp" 
+                            MouseWheel="volumeSlider_MouseWheel"
+                        />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label Content="Rear left lighting" Margin="3" VerticalAlignment="Center" Width="140" />
+
+                        <ProgressBar   
+                            Height="23" 
+                            Value="{Binding ugs.IllumRly1}"
+                            Style="{DynamicResource VolumeStyle}" 
+                            Maximum="255" 
+                            MouseMove="volumeSlider_MouseMove" 
+                            MouseDown="volumeSlider_MouseDown"
+                            MouseUp="volumeSlider_MouseUp" 
+                            MouseWheel="volumeSlider_MouseWheel"
+                        />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label Content="Rear right lighting" Margin="3" VerticalAlignment="Center" Width="140" />
+
+                        <ProgressBar   
+                            Height="23" 
+                            Value="{Binding ugs.IllumRly2}"
+                            Style="{DynamicResource VolumeStyle}" 
+                            Maximum="255" 
+                            MouseMove="volumeSlider_MouseMove" 
+                            MouseDown="volumeSlider_MouseDown"
+                            MouseUp="volumeSlider_MouseUp" 
+                            MouseWheel="volumeSlider_MouseWheel"
+                        />
+                    </StackPanel>
+                </WrapPanel>
+            </TabItem>
+
+            <TabItem Header="Log">
+                <DockPanel >
+                    <WrapPanel DockPanel.Dock="Top" >
+                        <Button Padding="3" Margin="3" Content="Clear log" Command="{Binding ClearSerialLogCommand}" />
+                    </WrapPanel>
+
+                    <DockPanel >
+                        <TextBox HorizontalAlignment="Left" Name="serialLogTextBlock"                                
+                               Width="{Binding Mode=OneWay, Path=ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type DockPanel}, Mode=FindAncestor}}"
+                               Height="{Binding Mode=OneWay, Path=Height, RelativeSource={RelativeSource AncestorType={x:Type DockPanel}, Mode=FindAncestor}}"
+                               Background="White"
+                               Foreground="Black"
+		                       Text="{Binding Path=ugs.SerialLog, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                               ClipToBounds="True" 
+                               ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                               ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                               DockPanel.Dock="Bottom" FontFamily="Consolas" FontSize="10.667" 
+ >
+                            <!-- MouseUp="serialLogTextBlock_MouseUp" -->
+                        </TextBox>
+                    </DockPanel>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
