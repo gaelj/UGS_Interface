@@ -67,6 +67,8 @@
                         </ComboBox>
                         <CheckBox Content="Open" Height="16" HorizontalAlignment="Center" Margin="10" x:Name="isPortOpenCheckBox" VerticalAlignment="Center" 
                           IsChecked="{Binding ugs.IsPortOpen, Mode=TwoWay}" />
+                        <CheckBox Content="Keep Open" Height="16" HorizontalAlignment="Center" Margin="10" x:Name="isPortKeepOpenCheckBox" VerticalAlignment="Center" 
+                          IsChecked="{Binding ugs.IsPortKeepOpen, Mode=TwoWay}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

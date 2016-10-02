@@ -100,6 +100,9 @@ namespace UGS
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
+            if (this.isPortKeepOpenCheckBox.IsChecked == true)
+                return;
+
             if (this.WindowState == WindowState.Minimized)
                 UGSvm.ugs.CloseSerial();
             else

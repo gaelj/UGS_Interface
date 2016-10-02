@@ -50,6 +50,7 @@ namespace UGS.Models
                 Properties.Settings.Default.ComPort = SerialPorts.OrderBy(x => int.Parse(x.Replace("COM", ""))).First();
 
             SerialPortName = Properties.Settings.Default.ComPort;
+            IsPortKeepOpen = true;
         }
 
         ~UGS()
@@ -653,6 +654,11 @@ namespace UGS.Models
                 else
                     CloseSerial();
             }
+        }
+
+        public bool IsPortKeepOpen
+        {
+            get; set;
         }
 
         public void OpenSerial(string portName)
